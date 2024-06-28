@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="widtd=device-widtd, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Hello World</h1>
+    <table>
+        <tdead>
+            <th>ID</th>
+            <th>Text</th>
+            <th>Status</th>
+        </tdead>
+         <tbody>
+            {% for todo in todos %}
+            <tr>
+                <td>{{ todo.id }}</td>
+                <td>{{ todo.text }}</td>
+                <td>{{ todo.status }}</td>
+            </tr>
+            {% endfor %}
+         </tbody>
+    </table>
+</body>
+</html>
