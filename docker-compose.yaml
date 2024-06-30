@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # irl our frontend and backend servers are probably in different places
+  frontend:
+    build:
+      context: ./src/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - OTEL_SERVICE_NAME=o11y-demo
+      - OTEL_TRACES_EXPORTER=console,otlp
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io:443
+      - OTEL_EXPORTER_OTLP_HEADERS=${OTEL_EXPORTER_OTLP_HEADERS}
+      - BACKEND_API_URL=http://backend:8001
+    stop_signal: SIGINT
+
+  backend:
+    build:
+      context: ./src/backend
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - OTEL_SERVICE_NAME=o11y-demo
+      # send to our collector instance instead
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+    stop_signal: SIGINT
+    depends_on:
+      - otel-collector
+
+  otel-collector:
+    image: otel/opentelemetry-collector:latest
+    ports:
+      - "4317:4317"
+    command: ["--config=/etc/collector.yaml"]
+    environment:
+      # pass through
+      - X_HONEYCOMB_TEAM=${X_HONEYCOMB_TEAM}
+    volumes:
+      - ./collector.yaml:/etc/collector.yaml

@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import List
 import requests
+import os
 
 from opentelemetry import trace
 from opentelemetry.trace import set_span_in_context
@@ -34,7 +35,7 @@ class BackendApi:
 
     def __init__(self) -> None:
         self.session = requests.Session()
-        self.url = "http://127.0.0.1:5050"
+        self.url = os.environ["BACKEND_API_URL"]
 
     @tracer.start_as_current_span("list")
     def list(self) -> List[Todo]:
