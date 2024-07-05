@@ -1,27 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="widtd=device-widtd, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>Hello World</h1>
-    <table>
-        <tdead>
-            <th>ID</th>
-            <th>Text</th>
-            <th>Status</th>
-        </tdead>
-         <tbody>
-            {% for todo in todos %}
-            <tr>
-                <td>{{ todo.id }}</td>
-                <td>{{ todo.text }}</td>
-                <td>{{ todo.status }}</td>
-            </tr>
-            {% endfor %}
-         </tbody>
-    </table>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col">
+
+
+
+        <table class="table">
+            <tdead>
+                <th>ID</th>
+                <th>Text</th>
+                <th>Status</th>
+                <th></th>
+            </tdead>
+            <tbody>
+                {% for todo in todos %}
+                <tr>
+                    <td>{{ todo.id }}</td>
+                    <td>{{ todo.text }}</td>
+                    <td>
+                        <form action="/complete/{{ todo.id }}" method="post">
+                            {% if todo.status %}
+                            <p>Done</p>
+                            {% else %}
+                            <button class="btn btn-primary" type="submit">
+                                Complete
+                            </button>
+                            {% endif %}
+
+                        </form>
+                    </td>
+                    <td>
+                        <form action="/delete/{{ todo.id }}" method="get">
+                            <button class="btn btn-warning" type="submit">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <hr>
+
+        <form action="/create" method="post">
+            <div class="mb-3">
+                <label for="text" class="form-label">Text</label>
+                <input type="text" class="form-control" id="text" name="text">
+            </div>
+
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="status" name="status">
+                <label class="form-check-label" for="status">
+                    Completed?
+                </label>
+            </div>
+
+            <button class="btn btn-primary" name="submit">Add</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

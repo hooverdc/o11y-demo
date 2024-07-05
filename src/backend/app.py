@@ -1,5 +1,5 @@
 import flask
-
+import logging
 
 from pydantic import BaseModel
 
@@ -8,8 +8,10 @@ from flask import g, request
 
 # look ma no obvious tracing
 
-DATABASE = "db.sqlite"
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
+DATABASE = "db.sqlite"
 
 app = flask.Flask(__name__)
 
@@ -55,9 +57,9 @@ def close_connection(exception):
 
 
 class TodoItem(BaseModel):
-    id: int
-    text: str
-    status: bool
+    id: int | None = None
+    text: str | None = None
+    status: bool | None = None
 
 
 @app.route("/api/v1/items", methods=["GET"])
@@ -69,7 +71,7 @@ def list():
     return flask.jsonify({"items": [todo.model_dump() for todo in items]})
 
 
-@app.route("/api/v1/item", methods=["POST"])
+@app.route("/api/v1/items", methods=["POST"])
 def create():
     todo = TodoItem(**request.json)  # type: ignore
     db = get_db()
@@ -85,20 +87,20 @@ def create():
     return flask.jsonify(todo.model_dump())
 
 
-@app.route("/api/v1/item", methods=["PUT"])
-def update():
+@app.route("/api/v1/items/<int:id>", methods=["PUT"])
+def update(id: int):
     todo = TodoItem(**request.json)  # type: ignore
     db = get_db()
     cur = db.cursor()
     cur.execute(
-        "UPDATE items SET text = :text, status = :status WHERE id = :id",
-        todo.model_dump(),
+        "UPDATE items SET status = :status WHERE id = :id",
+        {"status": todo.status, "id": id},
     )
     db.commit()
     return flask.jsonify(todo.model_dump())
 
 
-@app.route("/api/v1/todo/<id>", methods=["DELETE"])
+@app.route("/api/v1/items/<id>", methods=["DELETE"])
 def delete(id: str):
     db = get_db()
     cur = db.cursor()

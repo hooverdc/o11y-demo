@@ -1,5 +1,4 @@
-from flask import Flask
-from flask import render_template
+from flask import Flask, render_template, request, redirect
 
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
@@ -52,6 +51,31 @@ def index():
     backend_api = BackendApi()
     todos = backend_api.list()
     return render_template("index.html", todos=todos)
+
+
+@app.route("/create", methods=["POST"])
+def add():
+    backend_api = BackendApi()
+    print(request.form)
+    text = request.form.get("text", type=str)
+    # convert to bool
+    status = request.form.get("status", type=bool, default=False)
+    backend_api.create(text, status)  # type: ignore
+    return redirect("/")
+
+
+@app.route("/complete/<int:id>", methods=["POST"])
+def update(id: int):
+    backend_api = BackendApi()
+    backend_api.complete(id)  # type: ignore
+    return redirect("/")
+
+
+@app.route("/delete/<int:id>", methods=["GET"])
+def delete(id: int):
+    backend_api = BackendApi()
+    backend_api.delete(id)
+    return redirect("/")
 
 
 @app.route("/error")

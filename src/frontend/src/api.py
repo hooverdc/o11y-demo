@@ -44,14 +44,15 @@ class BackendApi:
         return [Todo(**item) for item in items]
 
     @tracer.start_as_current_span("create")
-    def create(self, body):
-        pass
+    def create(self, text: str, status: bool) -> None:
+        self.session.post(
+            f"{self.url}/api/v1/items", json={"text": text, "status": status}
+        )
 
-    # PATCH eh
     @tracer.start_as_current_span("update")
-    def update(self, id, body):
-        pass
+    def complete(self, id: int):
+        self.session.put(f"{self.url}/api/v1/items/{id}", json={"status": True})
 
     @tracer.start_as_current_span("delete")
     def delete(self, id) -> None:
-        pass
+        self.session.delete(f"{self.url}/api/v1/items/{id}")

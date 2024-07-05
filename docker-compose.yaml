@@ -8,6 +8,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    volumes:
+      - ./src/frontend/templates:/usr/src/app/templates
     environment:
       - OTEL_SERVICE_NAME=o11y-demo
       - OTEL_TRACES_EXPORTER=console,otlp
